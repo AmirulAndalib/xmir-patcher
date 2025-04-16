@@ -902,8 +902,9 @@ class Gateway():
           return False
     return True
 
-  def run_cmd(self, cmd, msg = None, timeout = None, die_on_error = True):
+  def run_cmd(self, cmd, msg = None, timeout = None, die_on_error = True, ret_output = False):
     ret = True
+    output = None
     if self.use_ssh:
       ssh = self.get_ssh(self.verbose)
     else:
@@ -944,10 +945,12 @@ class Gateway():
       else:
         cmd += '\n'
         tn.write(cmd.encode('ascii'))
-        tn.read_until(tn.prompt, timeout = 4 if timeout is None else timeout)
+        output = tn.read_until(tn.prompt, timeout = 4 if timeout is None else timeout)
     if not self.use_ssh:
       tn.write(b"exit\n")
       ret = True
+      if ret_output:
+        return output
     return ret
 
   def download(self, fn_remote, fn_local, verbose = 1):
